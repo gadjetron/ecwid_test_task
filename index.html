@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>Тестовое задание от Ecwid</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="styles.css" rel="stylesheet">
+    </head>
+    <body>
+        <form class="images-loading-form centered">
+            <input type="url"
+                   class="images-loading-form__file-path-input with-border-radius"
+                   placeholder="Путь к файлу с картинками"
+                   required>
+            <button type="submit"
+                    class="images-loading-form__file-loading-button centered with-border-radius margin-top-2">
+                Загрузить
+            </button>
+        </form>
+
+        <h2 class="text-center">Галерея изображений</h2>
+
+        <div class="images-gallery"></div>
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script>
+        var images_container = document.querySelector('.images-gallery');
+
+        function create_image_element(image_data) {
+            var image_url = image_data.url;
+            var image_width = image_data.width;
+            var image_height = image_data.height;
+
+            var image_element_container = document.createElement('div');
+            image_element_container.classList.add('images-gallery__gallery-image-container');
+
+            var image_element = document.createElement('img');
+            image_element.classList.add('images-gallery__gallery-image');
+
+            image_element.src = image_url;
+            image_element.width = image_width;
+            image_element.height = image_height;
+
+            image_element_container.appendChild(image_element);
+
+            return image_element_container;
+        }
+
+        function process_gallery_images_json(json_data) {
+            var parsed_json = JSON.parse(JSON.stringify(json_data));
+
+            var gallery_images = parsed_json.galleryImages;
+
+            $(images_container).empty();
+
+            for (i = 0; i < gallery_images.length; i++) {
+                var image_data = gallery_images[i];
+
+                var image_element = create_image_element(image_data);
+                images_container.appendChild(image_element);
+            }
+        }
+
+        var images_loading_form = $('.images-loading-form');
+
+        images_loading_form.on('submit', function (event) {
+            event.preventDefault();
+
+            var file_path = $('.images-loading-form__file-path-input').val();
+
+            $.ajax({
+                url: file_path,
+                type: 'GET',
+                dataType: 'json',
+                success: function (gallery_images_json) {
+                    process_gallery_images_json(gallery_images_json);
+                }
+            });
+        });
+    </script>
+</html>
